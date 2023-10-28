@@ -1,7 +1,7 @@
 # It contains all the configs required in the project
 
 artifacts:
-  KEY: value
+  SEED: 2021
 
 source_data_dirs:
   - path_to_data_1

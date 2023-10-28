@@ -29,4 +29,15 @@ source activate ./env
 pip install -r requirements.txt
 ```
 
-### STEP 06- commit and push the changes to the remote repository
+### to copy any file 
+
+```bash
+cp src/stage__00__template.py src/01_base_model_creation.py
+
+```
+
+### To rename any file 
+
+```bash 
+mv src/stage__00__template.py src/02_transfer_learning.py
+```
