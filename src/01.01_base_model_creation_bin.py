@@ -10,7 +10,7 @@ import tensorflow as tf
 import io
 
 
-STAGE = "Creating base model" ## <<< change stage name 
+STAGE = "Creating binary base model from strach " ## <<< change stage name 
 
 logging.basicConfig(
     filename=os.path.join("logs", 'running_logs.log'), 
@@ -19,6 +19,11 @@ logging.basicConfig(
     filemode="a"
     )
 
+def update_even_odd_labels(list_of_labels):
+    for idx, label in enumerate(list_of_labels):
+        even_condition = label%2 == 0
+        list_of_labels[idx] = np.where(even_condition, 1, 0)
+    return list_of_labels
 
 def main(config_path):
    ## read config files
@@ -29,6 +34,8 @@ def main(config_path):
     x_valid,x_train =x_train_full[0:5000]/255,x_train_full[5000:]/255
     y_valid,y_train=y_train_full[0:5000],y_train_full[5000:]
     x_test=x_test/255 
+
+    y_train_bin,y_test_bin,y_valid_bin = update_even_odd_labels([y_train,y_test,y_valid])
 
     ## set the seed 
     seed = 2021
@@ -42,7 +49,7 @@ def main(config_path):
         tf.keras.layers.LeakyReLU(),
         tf.keras.layers.Dense(100,name="second_hidden_layer"),
         tf.keras.layers.LeakyReLU(),
-        tf.keras.layers.Dense(10,activation="softmax", name="output_layer"),
+        tf.keras.layers.Dense(2,activation="softmax", name="output_layer"),
     ]
 
     ## define the model and compile it 
@@ -63,24 +70,24 @@ def main(config_path):
         return summary_str
 
     ## model summary 
-    logging.info(f"base model summary: \n{_log_model_summary(model)}")
+    logging.info(f"binary_scratch_model model summary: \n{_log_model_summary(model)}")
 
 
     ## Train the model 
 
     EPOCHS=30
-    VALIDATION = (x_valid,y_valid)
-    history = model.fit(x_train,y_train,validation_data=VALIDATION,epochs=EPOCHS,verbose=2)
+    VALIDATION = (x_valid,y_valid_bin)
+    history = model.fit(x_train,y_train_bin,validation_data=VALIDATION,epochs=EPOCHS,verbose=2)
 
     ## save the model 
     model_dir_path = os.path.join("artifacts","models")
     create_directories([model_dir_path])
 
-    model_file_path = os.path.join(model_dir_path, "base_model.h5")
+    model_file_path = os.path.join(model_dir_path, "binary_scratch_model.h5")
     model.save(model_file_path)
 
-    logging.info(f"base model is saved at {model_file_path}")
-    logging.info(f"evaluation metrics {model.evaluate(x_test,y_test)}")
+    logging.info(f"binary_scratch_model is saved at {model_file_path}")
+    logging.info(f"evaluation metrics {model.evaluate(x_test,y_test_bin)}")
 
 
 
